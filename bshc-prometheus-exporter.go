@@ -18,28 +18,29 @@ import (
 
 // Global variables
 var (
-	logger                *log.Logger
-	temperatureGauge      *prometheus.GaugeVec
-	humidityGauge         *prometheus.GaugeVec
-	valveTappetGauge      *prometheus.GaugeVec
-	configPath            string
-	httpBind              string
-	httpPort              string
-	bshcHost              string
-	bshcPort              string
-	bshcClientCert        string
-	bshcClientKey         string
-	debug                 bool
-	configPathDefault     = "config/config.yaml"
-	httpBindDefault       = ""
-	httpPortDefault       = ""
-	bshcHostDefault       = ""
-	bshcPortDefault       = ""
-	bshcClientCertDefault = ""
-	bshcClientKeyDefault  = ""
-	c                     conf
-	devices               = make(map[string]interface{})
-	rooms                 = make(map[string]interface{})
+	logger                   *log.Logger
+	temperatureGauge         *prometheus.GaugeVec
+	humidityGauge            *prometheus.GaugeVec
+	valveTappetGauge         *prometheus.GaugeVec
+	setpointTemperatureGauge *prometheus.GaugeVec
+	configPath               string
+	httpBind                 string
+	httpPort                 string
+	bshcHost                 string
+	bshcPort                 string
+	bshcClientCert           string
+	bshcClientKey            string
+	debug                    bool
+	configPathDefault        = "config/config.yaml"
+	httpBindDefault          = ""
+	httpPortDefault          = ""
+	bshcHostDefault          = ""
+	bshcPortDefault          = ""
+	bshcClientCertDefault    = ""
+	bshcClientKeyDefault     = ""
+	c                        conf
+	devices                  = make(map[string]interface{})
+	rooms                    = make(map[string]interface{})
 )
 
 // Config struct
@@ -323,6 +324,56 @@ func updateMetrics() {
 			logger.Debugf("Updating temperature metric for device %s in room %s", deviceName, roomName)
 			temperatureGauge.WithLabelValues(deviceID, deviceName, roomName).Set(temperature)
 		}
+
+		// Filter services with ID "RoomClimateControl"
+		var setpointTemperatureLevelServices []map[string]interface{}
+		for _, service := range services {
+			if service["id"] == "RoomClimateControl" {
+				state, ok := service["state"].(map[string]interface{})
+				if !ok {
+					logger.Errorf("Invalid state format for service: %v", service)
+					continue
+				}
+				filteredService := map[string]interface{}{
+					"id":                  service["id"],
+					"deviceId":            service["deviceId"],
+					"setpointTemperature": state["setpointTemperature"],
+				}
+				setpointTemperatureLevelServices = append(setpointTemperatureLevelServices, filteredService)
+			}
+		}
+
+		// Update Prometheus metrics with desired temperature levels
+		for _, service := range setpointTemperatureLevelServices {
+			deviceID, ok := service["deviceId"].(string)
+			if !ok {
+				logger.Errorf("Invalid deviceId format for service: %v", service)
+				continue
+			}
+			setpointTemperature, ok := service["setpointTemperature"].(float64)
+			if !ok {
+				logger.Errorf("Invalid setpointTemperature format for service: %v", service)
+				continue
+			}
+			deviceName, ok := devices[deviceID].(map[string]string)["name"]
+			if !ok {
+				logger.Errorf("Invalid device name format for device: %v", deviceID)
+				continue
+			}
+			roomID, ok := devices[deviceID].(map[string]string)["roomId"]
+			if !ok {
+				logger.Errorf("Invalid room ID format for device: %v", deviceID)
+				continue
+			}
+			roomName, ok := rooms[roomID].(string)
+			if !ok {
+				logger.Errorf("Invalid room name format for room: %v", roomID)
+				continue
+			}
+
+			logger.Debugf("Updating temperature metric for device %s in room %s", deviceName, roomName)
+			setpointTemperatureGauge.WithLabelValues(deviceID, deviceName, roomName).Set(setpointTemperature)
+		}
 	}
 
 	// Filter services with ID "HumidityLevel"
@@ -527,6 +578,14 @@ func main() {
 		[]string{"device_id", "device_name", "room_name"},
 	)
 
+	setpointTemperatureGauge = prometheus.NewGaugeVec(
+		prometheus.GaugeOpts{
+			Name: "setpoint_temperature_level",
+			Help: "Desired temperature level of the devices",
+		},
+		[]string{"device_id", "device_name", "room_name"},
+	)
+
 	humidityGauge = prometheus.NewGaugeVec(
 		prometheus.GaugeOpts{
 			Name: "humidity_level",
@@ -546,6 +605,7 @@ func main() {
 	// Register Prometheus metrics
 	logger.Info("Registering Prometheus metrics")
 	prometheus.MustRegister(temperatureGauge)
+	prometheus.MustRegister(setpointTemperatureGauge)
 	prometheus.MustRegister(humidityGauge)
 	prometheus.MustRegister(valveTappetGauge)
 
