@@ -1,6 +1,8 @@
 version: 2
 updates:
-    - package-ecosystem: "go"
+    - package-ecosystem: "gomod"
         directory: "/"
         schedule:
             interval: "weekly"
+        open-pull-requests-limit: 10
+        rebase-strategy: "auto"
