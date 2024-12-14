@@ -23,3 +23,13 @@ go.work.sum
 
 # env file
 .env
+
+# cert files
+*.pem
+*.cer
+
+# config file
+config.yaml
+
+# build directory
+bin
