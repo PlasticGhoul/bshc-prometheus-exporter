@@ -15,6 +15,6 @@ RUN mkdir /app \
 
 WORKDIR /app
 
-COPY --from=builder --chmod=777 /usr/local/bin/app/bshc-prometheus-exporter ./bshc-prometheus-exporter
+COPY --from=builder --chmod=777 /usr/src/app/bin/bshc-prometheus-exporter ./bshc-prometheus-exporter
 
 CMD ["/app/bshc-prometheus-exporter", "-c", "/app/config/config.yaml" ]
