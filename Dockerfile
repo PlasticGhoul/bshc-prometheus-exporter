@@ -1,4 +1,4 @@
-FROM golang:latest as builder
+FROM golang:alpine AS builder
 
 WORKDIR /usr/src/app
 
@@ -6,15 +6,15 @@ COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
 COPY . .
-RUN go build -v -o /usr/local/bin/app ./...
+RUN go build -v -o ./bin/ ./...
 
-FROM scratch:latest as runner
+FROM alpine:latest AS runner
 
 RUN mkdir /app \
     mkdir /app/config
 
 WORKDIR /app
 
-COPY --from=builder /usr/local/bin/app/bshc-prometheus-exporter .
+COPY --from=builder --chmod=777 /usr/local/bin/app/bshc-prometheus-exporter ./bshc-prometheus-exporter
 
 CMD ["/app/bshc-prometheus-exporter", "-c", "/app/config/config.yaml" ]
