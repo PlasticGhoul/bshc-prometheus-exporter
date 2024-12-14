@@ -59,9 +59,8 @@ type conf struct {
 
 	SERVICES struct {
 		TemperatureLevel bool `yaml:"temperature_level"`
-		//BatteryLevel     bool `yaml:"battery_level"`
-		HumidityLevel bool `yaml:"humidity_level"`
-		ValveTappet   bool `yaml:"valve_tappet"`
+		HumidityLevel    bool `yaml:"humidity_level"`
+		ValveTappet      bool `yaml:"valve_tappet"`
 	} `yaml:"services"`
 }
 

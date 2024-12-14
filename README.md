@@ -64,7 +64,6 @@ The configuration file is written in YAML and contains the following sections/ke
   - client_key --> Client key for authentication
 - services
   - temperature_level --> Enable temperature_level
-  - battery_level --> Enable battery_level of devices
   - humidity_level --> Enable humidity_level of devices
   - valve_tappet --> Enable valve_tappet (valve positiona) for thermostats
 
