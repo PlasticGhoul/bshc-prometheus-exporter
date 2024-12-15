@@ -38,6 +38,8 @@ var (
 	bshcPortDefault          = ""
 	bshcClientCertDefault    = ""
 	bshcClientKeyDefault     = ""
+	skipTlsVerify			bool
+	skipTlsVerifyDefault	= false
 	c                        conf
 	devices                  = make(map[string]interface{})
 	rooms                    = make(map[string]interface{})
@@ -55,6 +57,7 @@ type conf struct {
 		Port       string `yaml:"port"`
 		ClientCert string `yaml:"client_cert"`
 		ClientKey  string `yaml:"client_key"`
+		SkipTLSVerify bool `yaml:"skip_tls_verify"`
 	} `yaml:"bshc"`
 
 	SERVICES struct {
@@ -109,7 +112,15 @@ func makeGetRequest(url, clientCert, clientKey string) (*http.Response, error) {
 	}
 	transport := &http.Transport{TLSClientConfig: tlsConfig}
 	client := &http.Client{Transport: transport}
-	tlsConfig.InsecureSkipVerify = true
+	
+	if skipTlsVerify {
+		tlsConfig.InsecureSkipVerify = true
+		logger.Debug("TLS verification skipped")
+	} else {
+		tlsConfig.InsecureSkipVerify = false
+		logger.Debug("TLS verification enabled")
+	}	
+	
 	logger.Debug("HTTPS client configured successfully")
 
 	// Make GET request
@@ -512,6 +523,8 @@ func main() {
 	flag.StringVar(&bshcClientCert, "clientcert", bshcClientCertDefault, "BSHC client cert")
 	flag.StringVar(&bshcClientKey, "ck", bshcClientKeyDefault, "BSHC client key")
 	flag.StringVar(&bshcClientKey, "clientkey", bshcClientKeyDefault, "BSHC client key")
+	flag.BoolVar(&skipTlsVerify, "insecure", false, "Skip TLS verification")
+	flag.BoolVar(&skipTlsVerify, "i", false, "Skip TLS verification")
 	flag.BoolVar(&debug, "d", debug, "Enable debug mode")
 	flag.BoolVar(&debug, "debug", debug, "Enable debug mode")
 	flag.Parse()
@@ -544,6 +557,9 @@ func main() {
 		}
 		if flag.Lookup("clientkey").Value.String() == bshcClientKeyDefault || flag.Lookup("ck").Value.String() == bshcClientKeyDefault && c.BSHC.ClientKey != bshcClientKeyDefault {
 			bshcClientKey = c.BSHC.ClientKey
+		}
+		if flag.Lookup("insecure").Value.String() == fmt.Sprint(skipTlsVerifyDefault) || flag.Lookup("i").Value.String() == fmt.Sprint(skipTlsVerifyDefault) && c.BSHC.SkipTLSVerify != skipTlsVerifyDefault {
+			skipTlsVerify = c.BSHC.SkipTLSVerify
 		}
 	}
 

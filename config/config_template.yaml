@@ -11,6 +11,7 @@ bshc:
   port: "<Port>"                          # Port of the BSHC API
   client_cert: "<Path to cert>"           # Client certificate for authentication against BSHC
   client_key: "<Path to key>"             # Client key for authentication against BSHC
+  skip_tls_verify: true                  # Skip TLS verification
 
 # Services to collect metrics
 services:
