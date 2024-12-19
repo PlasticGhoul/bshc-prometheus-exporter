@@ -1,6 +1,6 @@
 module plasticghoul.de/bshc-prometheus-exporter
 
-go 1.23.4
+go 1.23
 
 require (
 	github.com/mbndr/figlet4go v0.0.0-20190224160619-d6cef5b186ea
