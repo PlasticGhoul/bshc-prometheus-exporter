@@ -1,54 +1,24 @@
-```markdown
-name: Feature request
-description: Suggest an idea for this project
-title: "[FEATURE] "
-labels: enhancement
-assignees: ''
+# Feature Request
 
-body:
-  - type: markdown
-    attributes:
-      value: |
-        ## Feature Request
+## Description
+Please provide a clear and concise description of the feature you would like to request.
 
-  - type: input
-    id: title
-    attributes:
-      label: Title
-      description: A clear and concise title for your feature request.
-      placeholder: Add a title for your feature request
-    validations:
-      required: true
+## Motivation
+Explain why this feature is important and how it will benefit the project.
 
-  - type: textarea
-    id: description
-    attributes:
-      label: Description
-      description: A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
-      placeholder: Describe your feature request
-    validations:
-      required: true
+## Proposed Solution
+Describe the solution you would like to see implemented.
 
-  - type: textarea
-    id: solution
-    attributes:
-      label: Proposed Solution
-      description: Describe the solution you'd like.
-      placeholder: Describe the solution you'd like
-    validations:
-      required: true
+## Alternatives
+List any alternative solutions or features you've considered.
 
-  - type: textarea
-    id: alternatives
-    attributes:
-      label: Alternatives
-      description: Describe any alternative solutions or features you've considered.
-      placeholder: Describe any alternative solutions or features you've considered
+## Additional Context
+Add any other context or screenshots about the feature request here.
 
-  - type: input
-    id: additional-context
-    attributes:
-      label: Additional context
-      description: Add any other context or screenshots about the feature request here.
-      placeholder: Add any other context or screenshots
-```
+## Checklist
+- [ ] I have searched the existing issues for this feature request.
+- [ ] I have provided a clear and concise description of the feature.
+- [ ] I have explained the motivation behind this feature request.
+- [ ] I have described the proposed solution.
+- [ ] I have listed any alternative solutions or features considered.
+- [ ] I have added any additional context or screenshots.
