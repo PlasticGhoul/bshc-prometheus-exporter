@@ -25,9 +25,11 @@ jobs:
 
     - name: Install dependencies
       run: go mod download && go mod verify
+      working-directory: ./src
 
     - name: Build project
       run: go build -v -o ./bin/ ./...
+      working-directory: ./src
 
     - name: Create Release
       id: create_release
