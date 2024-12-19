@@ -1,3 +1,4 @@
+```markdown
 name: Feature request
 description: Suggest an idea for this project
 title: "[FEATURE] "
@@ -50,3 +51,4 @@ body:
       label: Additional context
       description: Add any other context or screenshots about the feature request here.
       placeholder: Add any other context or screenshots
+```

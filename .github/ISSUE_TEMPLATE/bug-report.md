@@ -1,3 +1,4 @@
+```markdown
 name: Bug report
 description: Create a report to help us improve
 title: "[BUG] "
@@ -77,3 +78,4 @@ body:
       label: Additional context
       description: Add any other context about the problem here.
       placeholder: Additional context
+```
