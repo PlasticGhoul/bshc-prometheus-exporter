@@ -71,3 +71,4 @@ jobs:
           ghcr.io/plasticghoul/bshc-prometheus-exporter:latest
           ghcr.io/plasticghoul/bshc-prometheus-exporter:${{ github.ref_name }}
         platforms: linux/amd64,linux/arm64,linux/arm/v7
+        file: docker/Dockerfile
