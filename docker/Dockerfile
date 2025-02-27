@@ -11,14 +11,6 @@ RUN cd src \
 RUN cd src \
 	go build -v -o ./bin/ ./...
 	
-RUN ls
-
-RUN ls src
-
-RUN ls src/bin
-
-RUN pwd
-	
 	
 FROM alpine:latest AS runner
 
@@ -27,6 +19,6 @@ RUN mkdir /app \
 
 WORKDIR /app
 
-COPY --from=builder --chmod=777 /usr/src/app/bin/bshc-prometheus-exporter.exe ./bshc-prometheus-exporter
+COPY --from=builder --chmod=777 /usr/src/app/src/bin/bshc-prometheus-exporter ./bshc-prometheus-exporter
 
 CMD ["/app/bshc-prometheus-exporter", "-c", "/app/config/config.yaml" ]
