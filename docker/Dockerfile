@@ -9,7 +9,9 @@ RUN cd src \
     go mod verify
 
 RUN cd src \
-	go build -v -o ../bin/ ./...
+	go build -v -o ../bin/ ./... \
+	ls \
+	ls bin
 
 FROM alpine:latest AS runner
 
