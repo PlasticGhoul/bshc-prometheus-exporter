@@ -11,6 +11,12 @@ RUN cd src \
 RUN cd src \
 	go build -v -o ../../bin/ ./...
 	
+RUN ls
+
+RUN ls bin
+
+RUN pwd
+	
 	
 FROM alpine:latest AS runner
 
