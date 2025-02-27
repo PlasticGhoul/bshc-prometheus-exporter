@@ -9,7 +9,7 @@ RUN cd src \
     go mod verify
 
 RUN cd src \
-	go build -v -o ../../bin/ ./...
+	go build -v -o ../bin/ ./...
 	
 RUN ls
 
