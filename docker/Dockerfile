@@ -8,7 +8,8 @@ RUN cd src \
     go mod download \
     go mod verify
 
-RUN go build -v -o ../bin/ ./...
+RUN cd src \
+	go build -v -o ../bin/ ./...
 
 FROM alpine:latest AS runner
 
@@ -17,6 +18,6 @@ RUN mkdir /app \
 
 WORKDIR /app
 
-COPY --from=builder --chmod=777 /usr/src/app/bin/bshc-prometheus-exporter ./bshc-prometheus-exporter
+COPY --from=builder --chmod=777 /usr/src/app/bin/bshc-prometheus-exporter/src/bin/bshc-prometheus-exporter ./bshc-prometheus-exporter
 
 CMD ["/app/bshc-prometheus-exporter", "-c", "/app/config/config.yaml" ]
