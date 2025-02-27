@@ -9,11 +9,13 @@ RUN cd src \
     go mod verify
 
 RUN cd src \
-	go build -v -o ../bin/ ./...
+	go build -v -o ./bin/ ./...
 	
 RUN ls
 
-RUN ls bin
+RUN ls src
+
+RUN ls src/bin
 
 RUN pwd
 	
