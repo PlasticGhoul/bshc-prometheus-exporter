@@ -4,7 +4,7 @@ go 1.23.4
 
 require (
 	github.com/mbndr/figlet4go v0.0.0-20190224160619-d6cef5b186ea
-	github.com/prometheus/client_golang v1.21.0
+	github.com/prometheus/client_golang v1.21.1
 	github.com/withmandala/go-log v0.1.0
 	gopkg.in/yaml.v3 v3.0.1
 )
