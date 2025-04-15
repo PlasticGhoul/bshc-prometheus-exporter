@@ -6,8 +6,12 @@ on:
       - 'v*.*.*'
 
 jobs:
-  release:
-    runs-on: ubuntu-latest
+  matrix:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-24.04-arm]
+
+    runs-on: ${{ matrix.os }}
 
     permissions:
       contents: write
@@ -15,6 +19,15 @@ jobs:
       id-token: write
 
     steps:
+    - name: Prepare
+      run: |
+        if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+          echo "Setting up for x86_64"
+          echo "RUNNER_ARCH=amd64" >> $GITHUB_ENV
+        elif [[ "${{ matrix.os }}" == "ubuntu-24.04-arm" ]]; then
+          echo "Setting up for ARM64"
+          echo "RUNNER_ARCH=arm64" >> $GITHUB_ENV
+        fi
     - name: Checkout code
       uses: actions/checkout@v4
 
@@ -28,7 +41,7 @@ jobs:
       working-directory: ./src
 
     - name: Build project
-      run: go build -v -o ./bin/ ./...
+      run: go build -v -o ./bin/bshc-prometheus-exporter_${{ github.ref_name }}_${{ env.RUNNER_ARCH }} ./...
       working-directory: ./src
 
     - name: Create Release
@@ -48,8 +61,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./src/bin/bshc-prometheus-exporter
-        asset_name: bshc-prometheus-exporter
+        asset_path: ./src/bin/bshc-prometheus-exporter_${{ github.ref_name }}_${{ env.RUNNER_ARCH }}
+        asset_name: bshc-prometheus-exporter_${{ github.ref_name }}_${{ env.RUNNER_ARCH }}
         asset_content_type: application/octet-stream
 
     - name: Set up Docker Buildx
@@ -70,6 +83,8 @@ jobs:
         tags: |
           ghcr.io/plasticghoul/bshc-prometheus-exporter:latest
           ghcr.io/plasticghoul/bshc-prometheus-exporter:${{ github.ref_name }}
-        platforms: linux/amd64,linux/arm64,linux/arm/v7
+        build-args: |
+          ARTIFACT_NAME=bshc-prometheus-exporter_${{ github.ref_name }}_${{ env.RUNNER_ARCH }}
+        platforms: linux/${{ env.RUNNER_ARCH }}
         file: docker/Dockerfile
         no-cache: true
