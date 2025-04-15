@@ -47,6 +47,9 @@ jobs:
         elif [[ "${{ matrix.os }}" == "ubuntu-24.04-arm" ]]; then
           echo "Setting up for ARM64"
           echo "RUNNER_ARCH=arm64" >> $GITHUB_ENV
+        else
+          echo "Unsupported OS: ${{ matrix.os }}"
+          exit 1
         fi
     - name: Checkout code
       uses: actions/checkout@v4
@@ -100,6 +103,5 @@ jobs:
           ghcr.io/plasticghoul/bshc-prometheus-exporter:${{ github.ref_name }}
         build-args: |
           ARTIFACT_NAME=bshc-prometheus-exporter_${{ github.ref_name }}_${{ env.RUNNER_ARCH }}
-        platforms: linux/${{ env.RUNNER_ARCH }}
         file: docker/Dockerfile
         no-cache: true
