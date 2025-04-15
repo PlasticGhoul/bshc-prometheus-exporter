@@ -1,7 +1,5 @@
 FROM golang:alpine AS builder
 
-ARG ARTIFACT_NAME
-
 WORKDIR /usr/src/app
 
 COPY . .
@@ -21,6 +19,6 @@ RUN mkdir /app \
 
 WORKDIR /app
 
-COPY --from=builder --chmod=777 /usr/src/app/src/bin/$ARTIFACT_NAME ./bshc-prometheus-exporter
+COPY --from=builder --chmod=777 /usr/src/app/src/bin/bshc-prometheus-exporter ./bshc-prometheus-exporter
 
 CMD ["/app/bshc-prometheus-exporter", "-c", "/app/config/config.yaml" ]
