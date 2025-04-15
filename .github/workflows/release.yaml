@@ -38,6 +38,9 @@ jobs:
       packages: write
       id-token: write
 
+    env:
+      BUILDX_NO_DEFAULT_ATTESTATIONS: 1
+
     steps:
     - name: Prepare
       run: |
