@@ -125,7 +125,7 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build and push Docker image
-      uses: docker/build-push-action@v4
+      uses: docker/build-push-action@v6
       with:
         context: ${{ github.workspace }}
         file: ${{ github.workspace }}/docker/Dockerfile
@@ -137,3 +137,4 @@ jobs:
         no-cache: true
         build-args: |
           ARTIFACT_NAME=${{ env.ARTIFACT_FULL_NAME }}
+        outputs: type=image,name=target,annotation-index.org.opencontainers.image.description=Bosch Smart Home Controller Prometheus Exporter
