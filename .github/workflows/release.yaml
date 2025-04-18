@@ -122,6 +122,11 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: DEBUG
+      run: |
+        echo "PWD: $(pwd)"
+        echo "LS: $(ls -lisah ${{ env.ARTIFACT_PATH }})"
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
