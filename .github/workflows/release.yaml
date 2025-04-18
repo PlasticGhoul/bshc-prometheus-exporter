@@ -37,7 +37,7 @@ jobs:
         draft: false
         prerelease: false
 
-  matrix:
+  release:
     needs: prepare
 
     env:
@@ -63,11 +63,9 @@ jobs:
         if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
           GOOS=linux
           GOARCH=amd64
-          DOCKER_BUILD_PLATFORM=linux/amd64
         elif [ "${{ matrix.os }}" == "ubuntu-24.04-arm" ]; then
           GOOS=linux
           GOARCH=arm64
-          DOCKER_BUILD_PLATFORM=linux/arm64
         else
           echo "Unsupported OS: ${{ matrix.os }}"
           exit 1
@@ -77,7 +75,6 @@ jobs:
 
         echo "GOOS=${GOOS}" >> $GITHUB_ENV
         echo "GOARCH=${GOARCH}" >> $GITHUB_ENV
-        echo "DOCKER_BUILD_PLATFORM=${DOCKER_BUILD_PLATFORM}" >> $GITHUB_ENV
         echo "ARTIFACT_FULL_NAME=${ARTIFACT_FULL_NAME}" >> $GITHUB_ENV
     
     - name: Checkout code
@@ -132,7 +129,7 @@ jobs:
       with:
         context: ${{ github.workspace }}
         file: ${{ github.workspace }}/docker/Dockerfile
-        platforms: ${{ env.DOCKER_BUILD_PLATFORM }}
+        platforms: linux/arm64,linux/amd64
         tags: |
           ghcr.io/plasticghoul/${{ env.ARTIFACT_NAME }}:latest
           ghcr.io/plasticghoul/${{ env.ARTIFACT_NAME }}:${{ github.ref_name }}
@@ -140,3 +137,4 @@ jobs:
         no-cache: true
         build-args: |
           ARTIFACT_NAME=${{ env.ARTIFACT_FULL_NAME }}
+ 
