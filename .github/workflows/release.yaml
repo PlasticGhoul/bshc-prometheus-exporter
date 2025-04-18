@@ -139,5 +139,6 @@ jobs:
           ghcr.io/plasticghoul/${{ env.ARTIFACT_NAME }}:${{ github.ref_name }}
         push: true
         no-cache: true
+        provenance: false
         build-args: |
           ARTIFACT_NAME=${{ env.ARTIFACT_FULL_NAME }}
