@@ -125,6 +125,7 @@ jobs:
     - name: DEBUG
       run: |
         echo "PWD: $(pwd)"
+        echo "ARTIFACT_PATH: ${{ env.ARTIFACT_PATH }}"
         echo "LS: $(ls -lisah ${{ env.ARTIFACT_PATH }})"
 
     - name: Build and push Docker image
