@@ -6,7 +6,7 @@ on:
       - 'v*.*.*'
 
 jobs:
-  release:
+  prepare:
     runs-on: ubuntu-latest
 
     permissions:
@@ -14,40 +14,100 @@ jobs:
       packages: write
       id-token: write
 
+    steps:
+    - name: DEBUG
+      run: |
+        echo "GITHUB_REF: $GITHUB_REF"
+        echo "GITHUB_REF_NAME: $GITHUB_REF_NAME"
+        echo "GITHUB_REF_TYPE: $GITHUB_REF_TYPE"
+        echo "GITHUB_SHA: $GITHUB_SHA"
+        echo "GITHUB_RUN_ID: $GITHUB_RUN_ID"
+        echo "GITHUB_RUN_NUMBER: $GITHUB_RUN_NUMBER"
+        echo "GITHUB_REPOSITORY: $GITHUB_REPOSITORY"
+        echo "GITHUB_ACTOR: $GITHUB_ACTOR"
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: true
+        prerelease: false
+
+  matrix:
+    needs: prepare
+
     env:
-      BUILDX_NO_DEFAULT_ATTESTATIONS: 1
+      GO_VERSION: 1.23.4
+      SRC_PATH: ${{ github.workspace }}/src
+      ARTIFACT_NAME: bshc-prometheus-exporter
+      ARTIFACT_PATH: ${{ github.workspace }}/bin
+
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, ubuntu-24.04-arm]
 
     steps:
+    - name: Prepare Env
+      run: |
+        if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+          echo "GOOS=linux" >> $GITHUB_ENV
+          echo "GOARCH=amd64" >> $GITHUB_ENV
+          echo "DOCKER_BUILD_PLATFORM=linux/amd64" >> $GITHUB_ENV
+          echo "ARTIFACT_FULL_NAME=${{ env.ARTIFACT_NAME }}-${{ github.ref_name }}_${{ env.GOOS }}-${{ env.GOARCH }}" >> $GITHUB_ENV
+        elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+          echo "GOOS=windows" >> $GITHUB_ENV
+          echo "GOARCH=amd64" >> $GITHUB_ENV
+          echo "DOCKER_BUILD_PLATFORM=windows/amd64" >> $GITHUB_ENV
+          echo "ARTIFACT_FULL_NAME=${{ env.ARTIFACT_NAME }}-${{ github.ref_name }}_${{ env.GOOS }}-${{ env.GOARCH }}" >> $GITHUB_ENV
+        elif [ "${{ matrix.os }}" == "ubuntu-24.04-arm" ]; then
+          echo "GOOS=linux" >> $GITHUB_ENV
+          echo "GOARCH=arm64" >> $GITHUB_ENV
+          echo "DOCKER_BUILD_PLATFORM=linux/arm64" >> $GITHUB_ENV
+          echo "ARTIFACT_FULL_NAME=${{ env.ARTIFACT_NAME }}-${{ github.ref_name }}_${{ env.GOOS }}-${{ env.GOARCH }}" >> $GITHUB_ENV
+        else
+          echo "Unsupported OS: ${{ matrix.os }}"
+          exit 1
+        fi
+    
     - name: Checkout code
       uses: actions/checkout@v4
-
+    
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: '1.23.4'
+        go-version: ${{ env.GO_VERSION }}
 
     - name: Install dependencies
       run: go mod download && go mod verify
-      working-directory: ./src
+      working-directory: ${{ env.SRC_PATH }}
 
     - name: Build project
-      run: go build -v -o ./bin/ ./...
-      working-directory: ./src
+      run: go build -v -o ${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_FULL_NAME }} ./...
+      working-directory: ${{ env.SRC_PATH }}
 
     - name: Get release
       id: get_release
       uses: bruceadams/get-release@v1.3.2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+    
     - name: Upload Release Asset
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./src/bin/bshc-prometheus-exporter
-        asset_name: bshc-prometheus-exporter
+        upload_url: ${{ steps.get_release.outputs.upload_url }}
+        asset_path: ${{ env.ARTIFACT_PATH }}/${{ env.ARTIFACT_FULL_NAME }}
+        asset_name: ${{ env.ARTIFACT_FULL_NAME }}
         asset_content_type: application/octet-stream
 
     - name: Set up Docker Buildx
@@ -58,16 +118,19 @@ jobs:
       with:
         registry: ghcr.io
         username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
+        token: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Build and push Docker images
-      uses: docker/build-push-action@v6
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v4
       with:
-        context: .
-        push: true
+        context: ${{ github.workspace }}
+        file: ${{ github.workspace }}/docker/Dockerfile
+        platforms: ${{ env.DOCKER_BUILD_PLATFORM }}
         tags: |
-          ghcr.io/plasticghoul/bshc-prometheus-exporter:latest
-          ghcr.io/plasticghoul/bshc-prometheus-exporter:${{ github.ref_name }}
-        platforms: linux/amd64,linux/arm64,linux/arm/v7
-        file: docker/Dockerfile
+          ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:latest
+          ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ github.ref_name }}
+        push: true
         no-cache: true
+        build-args: |
+          ARTIFACT_PATH=${{ env.ARTIFACT_PATH }}
+          ARTIFACT_NAME=${{ env.ARTIFACT_FULL_NAME }}

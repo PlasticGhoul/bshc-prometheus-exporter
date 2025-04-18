@@ -1,24 +1,13 @@
-FROM golang:alpine AS builder
-
-WORKDIR /usr/src/app
-
-COPY . .
-
-RUN cd src \
-    go mod download \
-    go mod verify
-
-RUN cd src \
-	go build -v -o ./bin/ ./...
-	
-	
 FROM alpine:latest AS runner
+
+ARG ARTIFACT_PATH
+ARG ARTIFACT_NAME
 
 RUN mkdir /app \
     mkdir /app/config
 
 WORKDIR /app
 
-COPY --from=builder --chmod=777 /usr/src/app/src/bin/bshc-prometheus-exporter ./bshc-prometheus-exporter
+ADD --chmod=777 ${ARTIFACT_PATH}/${ARTIFACT_NAME} /app/bshc-prometheus-exporter
 
 CMD ["/app/bshc-prometheus-exporter", "-c", "/app/config/config.yaml" ]
