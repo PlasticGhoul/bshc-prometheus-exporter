@@ -140,5 +140,4 @@ jobs:
         push: true
         no-cache: true
         build-args: |
-          ARTIFACT_PATH=${{ env.ARTIFACT_PATH }}
           ARTIFACT_NAME=${{ env.ARTIFACT_FULL_NAME }}
