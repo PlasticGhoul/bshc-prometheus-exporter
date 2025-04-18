@@ -2,6 +2,10 @@ FROM alpine:latest AS runner
 
 ARG ARTIFACT_NAME
 
+LABEL org.opencontainers.image.title="BSHC Prometheus Exporter"
+LABEL org.opencontainers.image.description="Bosch Smart Home Controller Prometheus Exporter"
+LABEL org.opencontainers.image.authors="PlasticGhoul"
+
 RUN mkdir /app \
     mkdir /app/config
 

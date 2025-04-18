@@ -117,6 +117,9 @@ jobs:
       with:
         driver-opts: image=moby/buildkit:v0.21.0
 
+    - name: Debug Buildx
+      run: docker buildx inspect
+
     - name: Log in to GitHub Container Registry
       uses: docker/login-action@v3
       with:
@@ -137,12 +140,3 @@ jobs:
         no-cache: true
         build-args: |
           ARTIFACT_NAME=${{ env.ARTIFACT_FULL_NAME }}
-        outputs: |
-          type=image,name=target,
-          annotation-index.org.opencontainers.image.title=BSHC Prometheus Exporter,
-          annotation-index.org.opencontainers.image.description=Bosch Smart Home Controller Prometheus Exporter,
-          annotation-index.org.opencontainers.image.version=${{ github.ref_name }},
-          annotation-index.org.opencontainers.image.authors=PlasticGhoul
-
-    - name: Debug Buildx
-      run: docker buildx inspect 
