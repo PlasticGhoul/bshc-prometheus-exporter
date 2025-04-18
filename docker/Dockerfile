@@ -8,6 +8,6 @@ RUN mkdir /app \
 
 WORKDIR /app
 
-ADD --chmod=777 ${ARTIFACT_PATH}/${ARTIFACT_NAME} /app/bshc-prometheus-exporter
+COPY --chmod=777 ${ARTIFACT_PATH}/${ARTIFACT_NAME} /app/bshc-prometheus-exporter
 
 CMD ["/app/bshc-prometheus-exporter", "-c", "/app/config/config.yaml" ]
