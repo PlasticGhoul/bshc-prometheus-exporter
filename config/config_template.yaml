@@ -1,0 +1,20 @@
+# Configuration template for the BSHC Prometheus Exporter
+
+# HTTP settings
+http:
+  bind: "<IP address or hostname>"  # IP address or hostname to bind the webserver to
+  port: "<Port>"                    # Port to bind the webserver to
+
+# BSHC connection information
+bshc:
+  host: "<IP address or hostname>"        # IP address or hostname to reach the BSHC
+  port: "<Port>"                          # Port of the BSHC API
+  client_cert: "<Path to cert>"           # Client certificate for authentication against BSHC
+  client_key: "<Path to key>"             # Client key for authentication against BSHC
+  skip_tls_verify: true                  # Skip TLS verification
+
+# Services to collect metrics
+services:
+  temperature_level: true   # Temperature level metrics
+  humidity_level: true      # Humidity level
+  valve_tappet: true        # Valve position of thermostats
