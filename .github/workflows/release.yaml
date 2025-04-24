@@ -130,7 +130,7 @@ jobs:
         out-file-path: ${{ github.workspace }}
         token: ${{ secrets.GITHUB_TOKEN }}
 
-    - uses: docker/build-push-action@v3
+    - uses: docker/build-push-action@v6
       with:
         context: .
         platforms: linux/arm64,linux/amd64
